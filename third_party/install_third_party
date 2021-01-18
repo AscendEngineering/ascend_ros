@@ -23,6 +23,11 @@ function install {
     #loguru
     tar -xzf archives/loguru_2.1.0.tar.gz
 
+    #boost
+    wget https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz -P archives
+    tar -xzf archives/boost_1_75_0.tar.gz
+
+
     #enable serial 
     cd /etc/udev/rules.d/
     sudo touch 55-tegraserial.rules

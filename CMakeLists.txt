@@ -115,6 +115,8 @@ include_directories(
   ascend_ros
   third_party/cxxopts-2.2.1/include
   third_party/loguru-2.1.0
+  third_party/ascend_doms
+  third_party/boost_1_75_0
 )
 
 ## Declare a C++ library
@@ -132,13 +134,12 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 
 set(sources ${sources} 
-    src/utilities.cpp
     src/drone.cpp
-    src/utilities.cpp
     third_party/loguru-2.1.0/loguru.cpp
+    third_party/ascend_doms/utilities.cpp
 )
 
-add_executable(drone_node src/drone_node.cpp ${sources} )
+add_executable(drone_node src/drone_node.cpp ${sources})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

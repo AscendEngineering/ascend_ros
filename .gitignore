@@ -35,3 +35,4 @@ MAVSDK/
 archives/
 cxxopts-2.2.1/
 loguru-2.1.0/
+third_party/boost_1_75_0/
