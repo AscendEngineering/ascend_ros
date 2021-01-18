@@ -11,7 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  message_generation
 )
+
+find_package(Threads REQUIRED)
+find_package(MAVSDK REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -46,32 +50,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+add_message_files(
+  FILES
+  mission_point.msg
+  mission_pointList.msg  
+  mavlink.msg
+)
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
+
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -103,11 +93,13 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ascend_ros
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES ascend_ros
+  CATKIN_DEPENDS roscpp rospy std_msgs
+  DEPENDS system_lib
 )
+
+
 
 ###########
 ## Build ##
@@ -116,8 +108,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  /usr/local/include/mavsdk
+  /usr/local/include/mavsdk/plugins
+  ascend_ros
+  third_party/cxxopts-2.2.1/include
+  third_party/loguru-2.1.0
 )
 
 ## Declare a C++ library
@@ -133,7 +130,15 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/ascend_ros_node.cpp)
+
+set(sources ${sources} 
+    src/utilities.cpp
+    src/drone.cpp
+    src/utilities.cpp
+    third_party/loguru-2.1.0/loguru.cpp
+)
+
+add_executable(drone_node src/drone_node.cpp ${sources} )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -145,10 +150,21 @@ include_directories(
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(drone_node
+    MAVSDK::mavsdk_action
+    MAVSDK::mavsdk_mission
+    MAVSDK::mavsdk_mission_raw
+    MAVSDK::mavsdk_telemetry
+    MAVSDK::mavsdk_geofence
+    MAVSDK::mavsdk
+    MAVSDK::mavsdk_mavlink_passthrough
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${catkin_LIBRARIES}
+    -lpthread
+    -ldl
+)
+
+
 
 #############
 ## Install ##

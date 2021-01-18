@@ -1,0 +1,38 @@
+#!/bin/bash
+
+function install {
+
+    HARDWARE_NAME=$(uname -m)
+    if [[ "$HARDWARE_NAME" = "armv71" ]]
+    then
+        #enable serial
+        sh -c 'echo "enable_uart=1" >> /boot/config.txt'
+    fi
+
+    #MAVSDK
+    tar -xzf archives/mavsdk_0.35.0.tar.gz
+    cd MAVSDK
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -Bbuild/default -H.
+    sudo cmake --build build/default --target install
+    sudo ldconfig 
+    cd ..
+
+    #cxxopts
+    tar -xzf archives/cxxopts-2.2.1.tar.gz
+
+    #loguru
+    tar -xzf archives/loguru_2.1.0.tar.gz
+
+    #enable serial 
+    cd /etc/udev/rules.d/
+    sudo touch 55-tegraserial.rules
+    echo 'KERNEL=="ttyTHS*", MODE="0666"' | sudo tee -a 55-tegraserial.rules
+    systemctl stop nvgetty
+    systemctl disable nvgetty
+    udevadm trigger
+
+}
+
+install | tee third_party_install.log
+
+

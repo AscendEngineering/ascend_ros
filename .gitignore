@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+MAVSDK/
+archives/
+cxxopts-2.2.1/
+loguru-2.1.0/

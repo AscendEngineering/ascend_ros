@@ -44,8 +44,8 @@ function install {
         git clone https://github.com/AscendEngineering/ascend_ros.git
         GIT_PULLDOWN_SUCC=$?
     done
-    cp edge/ascend/essentialaero/third_party/archives/CMakeLists.txt .
-    cd edge/ascend/essentialaero
+    cp edge/ascend/ascend_ros/third_party/archives/CMakeLists.txt .
+    cd edge/ascend/ascend_ros
 
     #go and install third party
     cd third_party/
